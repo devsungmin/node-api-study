@@ -2,7 +2,7 @@
 
 const express = require('express');
 const user = express.Router({ mergeParams: true });
-const loginController = require('../../controllers/loginController');
+const userController = require('../../controllers/userController');
 
 user.get('/', (req, res) => {
     res.json({
@@ -10,6 +10,6 @@ user.get('/', (req, res) => {
     })
 })
 
-user.get('/login', loginController.userLogin)
+user.get('/login', userController.userLogin)
 
 module.exports = user;
