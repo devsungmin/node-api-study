@@ -5,6 +5,65 @@ const responseHandler = require("@utils/responseHandler");
 const jwt = require("jsonwebtoken");
 
 module.exports = {
+  // 회원 가입
+  async singup(req, res) {
+    let transaction = null;
+    try {
+      transaction = await models.sequelize.transaction();
+      let check = [];
+
+      check.push(
+        await models.User.findone({
+          where: {
+            username: req.body.username,
+          },
+        })
+      );
+      check.push(
+        await models.User.findone({
+          where: {
+            email: req.body.email,
+          },
+        })
+      );
+
+      if (check[0]) {
+        transaction.rollback();
+        responseHandler.fail(res, 409, "이미 사용중인 ID입니다.");
+      } else if (check[1]) {
+        transaction.rollback();
+        responseHandler.fail(res, 409, "이미 회원가입된 이메일입니다.");
+      } else {
+        const hash_id = crypto
+          .createHash("sha256")
+          .update(req.body.username + salt)
+          .digest("hex");
+
+        const hash_pw = crypto
+          .createHash("sha256")
+          .update(req.body.password + salt)
+          .digest("hex");
+
+        await models.User.create(
+          {
+            username: req.body.username,
+            password: req.body.password,
+            email: req.body.email,
+          },
+          {
+            transaction,
+          }
+        );
+      }
+    } catch (err) {
+      if (transaction) {
+        transaction.rollback();
+      }
+      responseHandler.fail(res, 500, "서버 에러");
+    }
+  },
+
+  // 로그인
   userLogin(req, res) {
     const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
