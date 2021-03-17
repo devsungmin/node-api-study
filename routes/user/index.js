@@ -10,6 +10,8 @@ user.get('/', (req, res) => {
     })
 })
 
-user.get('/login', userController.userLogin)
+user.post('/login', userController.userLogin)
+user.post('/register', userController.singup)
+
 
 module.exports = user;
