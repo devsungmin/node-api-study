@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  node:
+    build: "./api-server"
+    container_name: node-api-server
+    restart: always
+    environment:
+      HOST_IP: ${HOST_IP}
+    volumes:
+      - ./api-server:/app
+      - /app/node_modules
+    ports:
+      - 80:3000
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - default
+
+  db:
+    image: mysql:5.7
+    container_name: node-api-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tSuperS3cr3tP4ssw0rd
+      MYSQL_USER: sungmin_db
+      MYSQL_PASSWORD: 1q2w3e4r1!
+      MYSQL_DATABASE: api_test
+    ports:
+      - "3306:3306"
+    networks:
+      - default
+    volumes:
+      - ./db_data:/var/lib/mysql
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.32.0.0/24
